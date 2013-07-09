@@ -16,41 +16,39 @@
  *     You should have received a copy of the GNU General Public License
  *     along with j-google-trends-client.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.freaknet.gtrends.client;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+package org.freaknet.gtrends.client.exceptions;
 
 /**
- * Unit test for simple App.
+ *
+ * @author Marco Tizzoni <marco.tizzoni@gmail.com>
  */
-public class AppTest 
-    extends TestCase
-{
+public class HierarchicalDownloaderException extends Exception {
+
     /**
-     * Create the test case
+     * Creates a new instance of
+     * <code>HierarchicalDownloaderException</code> without detail message.
+     */
+    public HierarchicalDownloaderException() {
+    }
+
+    /**
+     * Constructs an instance of
+     * <code>HierarchicalDownloaderException</code> with the specified detail
+     * message.
      *
-     * @param testName name of the test case
+     * @param msg the detail message.
      */
-    public AppTest( String testName )
-    {
-        super( testName );
+    public HierarchicalDownloaderException(String msg) {
+        super(msg);
     }
-
+    
     /**
-     * @return the suite of tests being tested
+     * Constructs an instance of
+     * <code>DataWriterException</code> with the specified exception.
+     *
+     * @param e the exception.
      */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
-
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
+    public HierarchicalDownloaderException(Exception e) {
+        super(e);
     }
 }

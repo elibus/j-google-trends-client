@@ -1,32 +1,39 @@
+/**
+ * Copyright (C) 2013 Marco Tizzoni <marco.tizzoni@gmail.com>
+ *
+ * This file is part of j-google-trends-client
+ *
+ *     j-google-trends-client is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     j-google-trends-client is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with j-google-trends-client.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.freaknet.gtrends.client;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.URISyntaxException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
-import org.apache.http.auth.NTCredentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.freaknet.gtrends.api.GoogleAuthenticator;
 import org.freaknet.gtrends.api.GoogleTrendsClient;
-import org.freaknet.gtrends.api.GoogleTrendsCsvParser;
-import org.freaknet.gtrends.api.GoogleTrendsRequest;
 import org.freaknet.gtrends.api.exceptions.GoogleTrendsClientException;
 import org.freaknet.gtrends.api.exceptions.GoogleTrendsRequestException;
+import org.freaknet.gtrends.client.exceptions.HierarchicalDownloaderException;
+import org.freaknet.gtrends.client.writers.MultipleFileWriter;
+import org.freaknet.gtrends.client.writers.exceptions.DataWriterException;
 
 /**
  *
@@ -35,102 +42,27 @@ import org.freaknet.gtrends.api.exceptions.GoogleTrendsRequestException;
 public class App {
 
     private static int requestsLimit = 5;
-    private static int slowDown = 0;
 
-    public static void main(String[] args) throws GoogleTrendsClientException, IOException, InterruptedException,  GoogleTrendsRequestException, URISyntaxException, ParseException, ConfigurationException {
-        int requestCount = 0;
+    public static void main(String[] args) throws GoogleTrendsClientException, IOException, InterruptedException,  GoogleTrendsRequestException, URISyntaxException, ParseException, ConfigurationException, DataWriterException, HierarchicalDownloaderException {
         CmdLineParser cmdLine = new CmdLineParser().parse(args);
 
-        DefaultHttpClient httpClient = getHttpClient(cmdLine.getProxy(), cmdLine.getProxyCredentials());
-
-        GoogleAuthenticator authenticator = new GoogleAuthenticator(cmdLine.getUsername(), cmdLine.getPassword(), httpClient);
-        GoogleTrendsClient client = new GoogleTrendsClient(authenticator, httpClient);
-        GoogleTrendsRequest request;
-        String csvContent;
-        GoogleTrendsCsvParser csvParser;
-
-        HashMap<String, ArrayList> timeSeries = new HashMap();
-        Queue<String> queue = new LinkedList<String>();
-        
-        String firstQuery = cmdLine.getQuery();
-        queue.add(firstQuery);
-
-        while ((!queue.isEmpty()) && (requestCount < requestsLimit)) {
-            String queryString = queue.remove();
-            if (!timeSeries.containsKey(queryString)) {
-                request = new GoogleTrendsRequest(queryString);
-                csvContent = client.execute(request);
-                Thread.sleep(slowDown);
-                requestCount++;
-                if (csvContent == null) {
-                    System.err.append("ERROR!");
-                    System.exit(1);
-                } else {
-                    System.out.println("#" + requestCount + ": " + queryString);
-                }
-
-                csvParser = new GoogleTrendsCsvParser(csvContent);
-                // get Time Series and store it
-                ArrayList<String> interestOverTime = csvParser.getSectionAsStringList("Interest over time", false, ",");
-                timeSeries.put(queryString, interestOverTime);
-
-                ArrayList<String> topSearches = csvParser.getSectionAsStringList("Top searches for", false, ",");
-                final int topFirst = 10;
-                for (int i = 0; (i < topFirst) && (i < topSearches.size()); i++) {
-                    String col = topSearches.get(i);
-                    String q = col.split(",")[0];
-                    if (!timeSeries.containsKey(q)) {
-                        queue.add(q);
-                    }
-                }
-            }
-        }
-
-        // Print everything
-        for (Map.Entry<String, ArrayList> entry : timeSeries.entrySet()) {
-            ArrayList rows = entry.getValue();
-            System.out.println("=== " + entry.getKey() + " ===");
-            Iterator iterator = rows.iterator();
-            while (iterator.hasNext()) {
-                //String[] o = (String[]) iterator.next();
-                System.out.println(iterator.next());
-            }
-        }
-
-    }
-
-
-    private static DefaultHttpClient getHttpClient(String proxy, String proxyCredentials) throws UnknownHostException {
         DefaultHttpClient httpClient = new DefaultHttpClient();
 
-        if (proxy != null) {
-            String proxyHostName = proxy.split(":")[1].substring(2);
-            String proxyProtocol = proxy.split(":")[0];
-            int proxyPort = Integer.valueOf(proxy.split(":")[2]);
+        if (cmdLine.getProxyHostname() != null) {
+            HttpHost proxyHost = new HttpHost(cmdLine.getProxyHostname(), cmdLine.getProxyPort(), cmdLine.getProxyProtocol());
+            Credentials credentials = cmdLine.getProxyCredentials();
 
-            HttpHost proxyHost = new HttpHost(proxyHostName, proxyPort, proxyProtocol);
-
-            if (proxyCredentials != null) {
-                Credentials credentials;
-                Pattern pattern = Pattern.compile(".*/.*:");
-                Matcher matcher = pattern.matcher(proxyCredentials);
-                if (matcher.find()) {
-                    int atColon = proxyCredentials.indexOf(':');
-                    String username = proxyCredentials.substring(0, atColon);
-                    int atSlash = username.indexOf('/');
-                    String password = proxyCredentials.substring(atColon + 1);
-                    String domain = username.substring(0, atSlash);
-                    username = proxyCredentials.substring(atSlash + 1, atColon);
-
-                    credentials = new NTCredentials(username, password, InetAddress.getLocalHost().getHostName(), domain);
-                } else {
-                    credentials = new UsernamePasswordCredentials(proxyCredentials);
-                }
+            if (credentials != null) {
                 httpClient.getCredentialsProvider().setCredentials(new AuthScope(proxyHost.getHostName(), proxyHost.getPort()), credentials);
             }
             httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxyHost);
         }
-
-        return httpClient;
+        
+        GoogleAuthenticator authenticator = new GoogleAuthenticator(cmdLine.getUsername(), cmdLine.getPassword(), httpClient);
+        GoogleTrendsClient client = new GoogleTrendsClient(authenticator, httpClient);
+        MultipleFileWriter writer = new MultipleFileWriter(cmdLine.getOutputDir());
+        HierarchicalDownloader csvDownloader = new HierarchicalDownloader(client, writer, cmdLine.getSection(), cmdLine.getSleep());
+        csvDownloader.start(cmdLine.getQuery(), cmdLine.getmaxRequests());
     }
+
 }

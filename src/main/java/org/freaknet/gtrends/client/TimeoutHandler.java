@@ -18,39 +18,25 @@
  */
 package org.freaknet.gtrends.client;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.freaknet.gtrends.api.exceptions.GoogleTrendsClientException;
 
 /**
- * Unit test for simple App.
+ *
+ * @author Marco Tizzoni <marco.tizzoni@gmail.com>
  */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
+public class TimeoutHandler {
+    private int errorCount = 0;
+    private int maxRetry;
+    
+    public TimeoutHandler(int maxRetry){
+        this.maxRetry = maxRetry;
     }
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
+    void handleException(GoogleTrendsClientException ex) {
+        errorCount++;
+        if (errorCount++ < maxRetry){
+            
+        } 
     }
-
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
-    }
+    
 }

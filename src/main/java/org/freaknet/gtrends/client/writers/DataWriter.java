@@ -16,41 +16,14 @@
  *     You should have received a copy of the GNU General Public License
  *     along with j-google-trends-client.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.freaknet.gtrends.client;
+package org.freaknet.gtrends.client.writers;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.freaknet.gtrends.client.writers.exceptions.DataWriterException;
 
 /**
- * Unit test for simple App.
+ *
+ * @author Marco Tizzoni <marco.tizzoni@gmail.com>
  */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
-    }
-
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
-
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
-    }
+public interface DataWriter {
+    public void write (String name, String data) throws DataWriterException;
 }
