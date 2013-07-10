@@ -20,6 +20,8 @@ package org.freaknet.gtrends.client;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -32,15 +34,21 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.http.NameValuePair;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.message.BasicNameValuePair;
 
 /**
  *
  * @author Marco Tizzoni <marco.tizzoni@gmail.com>
  */
 public class CmdLineParser {
+    private static final String PARAMS_SEP = "&";
+    private static final String PARAMS_NAME_VALUE_SEP = "=";
+    private static final String USER_PASS_SEP = ":";
+    public static final char DOMAIN_SEP = '/';
 
     private Options options;
     private CommandLineParser parser;
@@ -107,11 +115,17 @@ public class CmdLineParser {
                 .withLongOpt("section")
                 .create("s");
 
-        Option maxRequests = OptionBuilder.withArgName("maxRequests")
+        Option maxRequestsOpt = OptionBuilder.withArgName("maxRequests")
                 .hasArg()
                 .withDescription("Maximum number of requests to perform.")
                 .withLongOpt("maxRequests")
                 .create("m");
+
+        Option queryOptionsOpt = OptionBuilder.withArgName("queryOptions")
+                .hasArg()
+                .withDescription("Query options.")
+                .withLongOpt("queryOptions")
+                .create("o");
 
         options.addOption(queryOpt);
         options.addOption(usernameOpt);
@@ -120,8 +134,9 @@ public class CmdLineParser {
         options.addOption(sleepOpt);
         options.addOption(proxyOpt);
         options.addOption(proxyCredentialsOpt);
-        options.addOption(maxRequests);
+        options.addOption(maxRequestsOpt);
         options.addOption(sectionOpt);
+        options.addOption(queryOptionsOpt);
     }
 
     /**
@@ -131,9 +146,10 @@ public class CmdLineParser {
         new HelpFormatter().printHelp("gtclient.sh", helpHeader, options, helpFooter, true);
         System.exit(-1);
     }
-    
+
     /**
      * Return the command line parser.
+     *
      * @param args
      * @return parser
      */
@@ -149,7 +165,8 @@ public class CmdLineParser {
 
     /**
      * Gets the Google account username.
-     * @return 
+     *
+     * @return
      */
     public String getUsername() {
         return cmd.getOptionValue("u");
@@ -157,6 +174,7 @@ public class CmdLineParser {
 
     /**
      * Gets the Google account password.
+     *
      * @return password
      */
     public String getPassword() {
@@ -165,6 +183,7 @@ public class CmdLineParser {
 
     /**
      * Gets the directory where to store the output.
+     *
      * @return direcotry
      */
     public String getOutputDir() {
@@ -177,6 +196,7 @@ public class CmdLineParser {
 
     /**
      * Gets the number of ms between one request and the next one.
+     *
      * @return sleep (in ms)
      */
     public int getSleep() {
@@ -186,9 +206,10 @@ public class CmdLineParser {
             return 0;
         }
     }
-    
+
     /**
      * Gets the proxy string as provided on the command line.
+     *
      * @return proxy string
      */
     private String getProxy() {
@@ -196,13 +217,15 @@ public class CmdLineParser {
     }
 
     /**
-     * Gets the <code>Credentials</code> for proxy authentication.
+     * Gets the
+     * <code>Credentials</code> for proxy authentication.
+     *
      * @return credentials
      */
     public Credentials getProxyCredentials() {
         String c = cmd.getOptionValue("C");
         Credentials credentials;
-        Pattern pattern = Pattern.compile(".*/.*:");
+        Pattern pattern = Pattern.compile(".*" + DOMAIN_SEP + ".*" + USER_PASS_SEP);
         Matcher matcher = pattern.matcher(c);
         if (matcher.find()) {
             try {
@@ -220,7 +243,8 @@ public class CmdLineParser {
 
     /**
      * Gets the Google query string.
-     * @return 
+     *
+     * @return
      */
     public String getQuery() {
         return cmd.getOptionValue("q");
@@ -228,7 +252,8 @@ public class CmdLineParser {
 
     /**
      * Gets the section to retrieve from the CSV.
-     * @return 
+     *
+     * @return
      */
     public String getSection() {
         return cmd.getOptionValue("s");
@@ -236,37 +261,41 @@ public class CmdLineParser {
 
     /**
      * Gets proxy Host name
+     *
      * @return hostname
      */
     public String getProxyHostname() {
-        return getProxy().split(":")[1].substring(2);
+        return getProxy().split(USER_PASS_SEP)[1].substring(2);
     }
 
     /**
      * Gets proxy protocol.
+     *
      * @return protocol
      */
     public String getProxyProtocol() {
-        return getProxy().split(":")[0];
+        return getProxy().split(USER_PASS_SEP)[0];
     }
 
     /**
      * Gets proxy port.
+     *
      * @return port
      */
     public Integer getProxyPort() {
-        return Integer.valueOf(getProxy().split(":")[2]);
+        return Integer.valueOf(getProxy().split(USER_PASS_SEP)[2]);
     }
 
     /**
      * Gets the NT DOMAIN for NTLM Authentication.
-     * @return 
+     *
+     * @return
      */
     public String getProxyUserDomain() {
         String c = cmd.getOptionValue("C");
-        int atColon = c.indexOf(':');
+        int atColon = c.indexOf(USER_PASS_SEP);
         String username = c.substring(0, atColon);
-        int atSlash = username.indexOf('/');
+        int atSlash = username.indexOf(DOMAIN_SEP);
         String domain = null;
         if (atSlash > 0) {
             domain = username.substring(0, atSlash);
@@ -277,13 +306,14 @@ public class CmdLineParser {
 
     /**
      * Gets the Username for the proxy authentication.
+     *
      * @return username
      */
     public String getProxyUsername() {
         String c = cmd.getOptionValue("C");
-        int atColon = c.indexOf(':');
+        int atColon = c.indexOf(USER_PASS_SEP);
         String username = c.substring(0, atColon);
-        int atSlash = username.indexOf('/');
+        int atSlash = username.indexOf(DOMAIN_SEP);
         if (atSlash > 0) {
             username = c.substring(atSlash + 1, atColon);
         }
@@ -293,17 +323,19 @@ public class CmdLineParser {
 
     /**
      * Gets the Password for the proxy authentication.
+     *
      * @return password
      */
     public String getProxyPassword() {
         String c = cmd.getOptionValue("C");
-        int atColon = c.indexOf(':');
+        int atColon = c.indexOf(USER_PASS_SEP);
         return c.substring(atColon + 1);
     }
 
     /**
      * Gets the maximum number of requests to issue.
-     * @return 
+     *
+     * @return
      */
     public int getmaxRequests() {
         try {
@@ -311,5 +343,21 @@ public class CmdLineParser {
         } catch (java.lang.NumberFormatException e) {
             return 1;
         }
+    }
+
+    public List<NameValuePair> getQueryOptions() {
+        List<NameValuePair> ret = new LinkedList<NameValuePair>();
+        String opts = cmd.getOptionValue("o");
+        String[] optsArray;
+
+        if (opts != null) {
+            optsArray = opts.split(PARAMS_SEP);
+            for (int i = 0; i < optsArray.length; i++) {
+                String[] s = optsArray[i].split(PARAMS_NAME_VALUE_SEP);
+                ret.add(new BasicNameValuePair(s[0], s[1]));
+            }
+        }
+
+        return ret;
     }
 }

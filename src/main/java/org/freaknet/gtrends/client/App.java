@@ -27,6 +27,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.freaknet.gtrends.api.GoogleAuthenticator;
 import org.freaknet.gtrends.api.GoogleTrendsClient;
 import org.freaknet.gtrends.api.exceptions.GoogleTrendsClientException;
@@ -40,9 +41,6 @@ import org.freaknet.gtrends.client.writers.exceptions.DataWriterException;
  * @author Marco Tizzoni <marco.tizzoni@gmail.com>
  */
 public class App {
-
-    private static int requestsLimit = 5;
-
     public static void main(String[] args) throws GoogleTrendsClientException, IOException, InterruptedException,  GoogleTrendsRequestException, URISyntaxException, ParseException, ConfigurationException, DataWriterException, HierarchicalDownloaderException {
         CmdLineParser cmdLine = new CmdLineParser().parse(args);
 
@@ -57,11 +55,14 @@ public class App {
             }
             httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxyHost);
         }
-        
+          
         GoogleAuthenticator authenticator = new GoogleAuthenticator(cmdLine.getUsername(), cmdLine.getPassword(), httpClient);
         GoogleTrendsClient client = new GoogleTrendsClient(authenticator, httpClient);
         MultipleFileWriter writer = new MultipleFileWriter(cmdLine.getOutputDir());
-        HierarchicalDownloader csvDownloader = new HierarchicalDownloader(client, writer, cmdLine.getSection(), cmdLine.getSleep());
+        HierarchicalDownloader csvDownloader = new HierarchicalDownloader(client, writer);
+        //csvDownloader.setSection(cmdLine.getSection());
+        csvDownloader.setSleep(cmdLine.getSleep());
+        csvDownloader.setQueryOpts(cmdLine.getQueryOptions());
         csvDownloader.start(cmdLine.getQuery(), cmdLine.getmaxRequests());
     }
 
