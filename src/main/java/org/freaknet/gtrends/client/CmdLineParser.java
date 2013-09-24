@@ -265,7 +265,10 @@ public class CmdLineParser {
      * @return hostname
      */
     public String getProxyHostname() {
+      if (getProxy() != null) {
         return getProxy().split(USER_PASS_SEP)[1].substring(2);
+      } else
+        return null;
     }
 
     /**
@@ -274,7 +277,11 @@ public class CmdLineParser {
      * @return protocol
      */
     public String getProxyProtocol() {
+      if (getProxy() != null) {
         return getProxy().split(USER_PASS_SEP)[0];
+      } else {
+        return null;
+      }
     }
 
     /**
@@ -283,7 +290,11 @@ public class CmdLineParser {
      * @return port
      */
     public Integer getProxyPort() {
+      if (getProxy() != null) {
         return Integer.valueOf(getProxy().split(USER_PASS_SEP)[2]);
+      } else {
+        return null;
+      }
     }
 
     /**
