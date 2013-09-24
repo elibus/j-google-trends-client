@@ -174,7 +174,7 @@
   <distributionManagement>
     <repository>
       <id>maven-repository</id>
-      <url>file://${project.basedir}/../releases</url>
+      <url>file://${project.basedir}/releases</url>
     </repository>
   </distributionManagement>
 </project>
