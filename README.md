@@ -43,7 +43,8 @@ Example
 
 Download binaries
 =================
-https://github.com/elibus/j-google-trends-client/tree/master/releases/org/freaknet/gtrends/client/j-google-trends-client/
+Binaries can be downloaded here: https://github.com/elibus/j-google-trends-client/tree/master/releases/org/freaknet/gtrends/client/j-google-trends-client/
+Jar files with "with-dependencies" suffix can be used straightaway as standalone application. No other dependency is needed as everything is included in the bundle.
 
 LICENSE
 =======
