@@ -7,7 +7,11 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2:exec</goal>
             </goals>
             <properties>
+<<<<<<< HEAD
                 <exec.args>-classpath %classpath org.freaknet.gtrends.client.App</exec.args>
+=======
+                <exec.args>-classpath %classpath org.freaknet.gtrends.client.App -u elibus -p '_X&lt;)-z\ 6Aakj57PNj3BsSYe$' -q "lavoro" -o 'geo=IT-RM'</exec.args>
+>>>>>>> b20348020a84c7908976ec7e08117c29a76d33fe
                 <exec.executable>java</exec.executable>
                 <exec.classpathScope>runtime</exec.classpathScope>
                 <exec.workingdir>/Users/elibus/dev/j-google-trends-client/target</exec.workingdir>
@@ -20,7 +24,11 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2:exec</goal>
             </goals>
             <properties>
+<<<<<<< HEAD
                 <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath org.freaknet.gtrends.client.App</exec.args>
+=======
+                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath org.freaknet.gtrends.client.App -u elibus -p '_X&lt;)-z\ 6Aakj57PNj3BsSYe$' -q "lavoro" -o 'geo=IT-RM'</exec.args>
+>>>>>>> b20348020a84c7908976ec7e08117c29a76d33fe
                 <exec.executable>java</exec.executable>
                 <exec.classpathScope>runtime</exec.classpathScope>
                 <jpda.listen>true</jpda.listen>
@@ -34,7 +42,11 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2:exec</goal>
             </goals>
             <properties>
+<<<<<<< HEAD
                 <exec.args>-classpath %classpath org.freaknet.gtrends.client.App</exec.args>
+=======
+                <exec.args>${profiler.args} -classpath %classpath org.freaknet.gtrends.client.App -u elibus -p '_X&lt;)-z\ 6Aakj57PNj3BsSYe$' -q "lavoro" -o 'geo=IT-RM'</exec.args>
+>>>>>>> b20348020a84c7908976ec7e08117c29a76d33fe
                 <exec.executable>${profiler.java}</exec.executable>
                 <exec.workingdir>/Users/elibus/dev/j-google-trends-client/target</exec.workingdir>
             </properties>
