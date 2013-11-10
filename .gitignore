@@ -1,3 +1,5 @@
 /target/
 .DS_Store
 Copy of nbactions.xml
+pom.xml.releaseBackup
+release.properties
