@@ -32,9 +32,9 @@
   </developers>
 
   <scm>
-    <connection>scm:git:http://git@github.com/elibus/j-google-trends-client.git</connection>
+    <connection>scm:git:ssh://git@github.com/elibus/j-google-trends-client.git</connection>
     <url>https://github.com/elibus/j-google-trends-client.git</url>
-    <developerConnection>scm:git:https://git@github.com/elibus/j-google-trends-client.git</developerConnection>
+    <developerConnection>scm:git:git@github.com/elibus/j-google-trends-client.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
