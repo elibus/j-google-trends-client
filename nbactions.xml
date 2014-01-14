@@ -7,10 +7,8 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2:exec</goal>
             </goals>
             <properties>
-                <exec.args>-classpath %classpath org.freaknet.gtrends.client.App -P http://localhost:3128 -u scotttrend12312013 -p stockstrends -C username:password -d ./ -q "jobs"</exec.args>
                 <exec.executable>java</exec.executable>
                 <exec.classpathScope>runtime</exec.classpathScope>
-                <exec.workingdir>/home/l186120/dev/tmp</exec.workingdir>
             </properties>
         </action>
         <action>
