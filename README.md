@@ -3,6 +3,12 @@ Java Google Trends Client (unofficial)
 
 j-google-trends-client is a Java based implementation of Unofficial Google Trends cli based client.
 
+Download binaries
+=================
+Binaries can be downloaded here: https://github.com/elibus/j-google-trends-client/tree/master/releases/org/freaknet/gtrends/client/j-google-trends-client/
+
+Jar files with "with-dependencies" suffix can be used straightaway as standalone application. No other dependency is needed as everything is included in the bundle.
+
 Help
 ====
     [ elibus@teresa ~/dev/j-google-trends-client/target ] java -jar j-google-trends-client-1.1.1-jar-with-dependencies.jar
@@ -41,10 +47,6 @@ Example
 =======
     java -jar j-google-trends-client-1.1.1.jar -u myUser -p myPass -q "jobs -'steve jobs'" -o 'geo=IT-RM'
 
-Download binaries
-=================
-Binaries can be downloaded here: https://github.com/elibus/j-google-trends-client/tree/master/releases/org/freaknet/gtrends/client/j-google-trends-client/
-Jar files with "with-dependencies" suffix can be used straightaway as standalone application. No other dependency is needed as everything is included in the bundle.
 
 LICENSE
 =======
