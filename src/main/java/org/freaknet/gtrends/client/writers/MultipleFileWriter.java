@@ -40,7 +40,7 @@ public class MultipleFileWriter implements DataWriter {
     }
 
     public MultipleFileWriter(String outputDir, String ext) throws IOException {
-        this.ext = "ext";
+        this.ext = ext;
         this.outputDir = new File(outputDir);
         if (!this.outputDir.canWrite()) {
             throw new IOException("Directory: \"" + outputDir + "\" is not writable!");

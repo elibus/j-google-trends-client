@@ -20,10 +20,10 @@ package org.freaknet.gtrends.client;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -85,7 +85,7 @@ public class HierarchicalDownloader {
     void start(String firstQuery, int requestsLimit) throws HierarchicalDownloaderException {
         String csvContent;
         int requestCount = 0;
-        HashMap<String, Integer> queries = new HashMap();
+        Map<String, Integer> queries = new HashMap();
         Queue<String> queue = new LinkedList<String>();
         queue.add(firstQuery);
         
@@ -124,8 +124,6 @@ public class HierarchicalDownloader {
             }
         } catch (ConfigurationException ex) {
             throw new HierarchicalDownloaderException(ex);
-        } catch (URISyntaxException ex) {
-            throw new HierarchicalDownloaderException(ex);
         } catch (GoogleTrendsClientException ex) {
             throw new HierarchicalDownloaderException(ex);
         } catch (IOException ex) {
@@ -147,7 +145,7 @@ public class HierarchicalDownloader {
     }
 
     /**
-     * @param topMax the topMax to set
+     * @param topFirst
      */
     public void setTopMax(int topFirst) {
         this.topMax = topFirst;
@@ -167,9 +165,9 @@ public class HierarchicalDownloader {
         this.writer = writer;
     }
     
-    private void enqueueTopSearches(GoogleTrendsCsvParser csvParser, HashMap<String, Integer> queries, Queue<String> queue) throws IOException {
+    private void enqueueTopSearches(GoogleTrendsCsvParser csvParser, Map<String, Integer> queries, Queue<String> queue) throws IOException {
         // Add next queries
-        ArrayList<String> topSearches = csvParser.getSectionAsStringList(SECTION_TOP_SEARCHES_FOR, false, csvParser.getSeparator());
+        List<String> topSearches = csvParser.getSectionAsStringList(SECTION_TOP_SEARCHES_FOR, false, csvParser.getSeparator());
         for (int i = 0; (i < getTopMax()) && (i < topSearches.size()); i++) {
             String col = topSearches.get(i);
             String q = col.split(csvParser.getSeparator())[0];
@@ -215,7 +213,7 @@ public class HierarchicalDownloader {
     }
 
     /**
-     * @param queryParams the queryParams to set
+     * @param queryOpts
      */
     public void setQueryOpts(List<NameValuePair> queryOpts) {
         this.queryParams = queryOpts;

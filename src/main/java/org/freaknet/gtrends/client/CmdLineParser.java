@@ -53,11 +53,11 @@ public class CmdLineParser {
     private Options options;
     private CommandLineParser parser;
     private CommandLine cmd;
-    private static final String helpHeader = "This is a client for Google Trends. It allows to:\n"
+    private static final String HELP_HEADER = "This is a client for Google Trends. It allows to:\n"
             + "- Download the entire CSV file (the same file that can be downloaded through the browser)\n"
             + "- Download a single section of the same CSV file\n"
             + "- Iterate over the hierarchical tree of \"Top Searches\" and download section/CSV file\n";
-    private static final String helpFooter = "EXAMPLE: gtclient.sh -u user@google.com - p passwd -d ./outdir -q \"jobs -'steve jobs'\"\n";
+    private static final String HELP_FOOTER = "EXAMPLE: gtclient.sh -u user@google.com - p passwd -d ./outdir -q \"jobs -'steve jobs'\"\n";
     private static final String DEFAULT_OUTPUT_DIR = "out";
 
     public CmdLineParser() {
@@ -143,7 +143,7 @@ public class CmdLineParser {
      * Shows help
      */
     private void showHelp() {
-        new HelpFormatter().printHelp("gtclient.sh", helpHeader, options, helpFooter, true);
+        new HelpFormatter().printHelp("gtclient.sh", HELP_HEADER, options, HELP_FOOTER, true);
         System.exit(-1);
     }
 
@@ -267,8 +267,9 @@ public class CmdLineParser {
     public String getProxyHostname() {
       if (getProxy() != null) {
         return getProxy().split(USER_PASS_SEP)[1].substring(2);
-      } else
+      } else {
         return null;
+      }
     }
 
     /**

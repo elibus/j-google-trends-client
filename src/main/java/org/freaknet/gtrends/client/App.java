@@ -27,7 +27,6 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.freaknet.gtrends.api.GoogleAuthenticator;
 import org.freaknet.gtrends.api.GoogleTrendsClient;
 import org.freaknet.gtrends.api.exceptions.GoogleTrendsClientException;
@@ -60,7 +59,6 @@ public class App {
         GoogleTrendsClient client = new GoogleTrendsClient(authenticator, httpClient);
         MultipleFileWriter writer = new MultipleFileWriter(cmdLine.getOutputDir());
         HierarchicalDownloader csvDownloader = new HierarchicalDownloader(client, writer);
-        //csvDownloader.setSection(cmdLine.getSection());
         csvDownloader.setSleep(cmdLine.getSleep());
         csvDownloader.setQueryOpts(cmdLine.getQueryOptions());
         csvDownloader.start(cmdLine.getQuery(), cmdLine.getmaxRequests());
