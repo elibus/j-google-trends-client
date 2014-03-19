@@ -40,28 +40,31 @@ import org.freaknet.gtrends.client.writers.exceptions.DataWriterException;
  * @author Marco Tizzoni <marco.tizzoni@gmail.com>
  */
 public class App {
-    public static void main(String[] args) throws GoogleTrendsClientException, IOException, InterruptedException,  GoogleTrendsRequestException, URISyntaxException, ParseException, ConfigurationException, DataWriterException, HierarchicalDownloaderException {
-        CmdLineParser cmdLine = new CmdLineParser().parse(args);
 
-        DefaultHttpClient httpClient = new DefaultHttpClient();
+  public static void main(String[] args) throws GoogleTrendsClientException, IOException, InterruptedException, GoogleTrendsRequestException, URISyntaxException, ParseException, ConfigurationException, DataWriterException, HierarchicalDownloaderException {
+    CmdLineParser cmdLine = new CmdLineParser().parse(args);
 
-        if (cmdLine.getProxyHostname() != null) {
-            HttpHost proxyHost = new HttpHost(cmdLine.getProxyHostname(), cmdLine.getProxyPort(), cmdLine.getProxyProtocol());
-            Credentials credentials = cmdLine.getProxyCredentials();
+    DefaultHttpClient httpClient = new DefaultHttpClient();
 
-            if (credentials != null) {
-                httpClient.getCredentialsProvider().setCredentials(new AuthScope(proxyHost.getHostName(), proxyHost.getPort()), credentials);
-            }
-            httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxyHost);
-        }
-          
-        GoogleAuthenticator authenticator = new GoogleAuthenticator(cmdLine.getUsername(), cmdLine.getPassword(), httpClient);
-        GoogleTrendsClient client = new GoogleTrendsClient(authenticator, httpClient);
-        MultipleFileWriter writer = new MultipleFileWriter(cmdLine.getOutputDir());
-        HierarchicalDownloader csvDownloader = new HierarchicalDownloader(client, writer);
-        csvDownloader.setSleep(cmdLine.getSleep());
-        csvDownloader.setQueryOpts(cmdLine.getQueryOptions());
-        csvDownloader.start(cmdLine.getQuery(), cmdLine.getmaxRequests());
+    if (cmdLine.getProxyHostname() != null) {
+      HttpHost proxyHost = new HttpHost(cmdLine.getProxyHostname(), cmdLine.getProxyPort(), cmdLine.getProxyProtocol());
+      Credentials credentials = cmdLine.getProxyCredentials();
+
+      if (credentials != null) {
+        httpClient.getCredentialsProvider().setCredentials(new AuthScope(proxyHost.getHostName(), proxyHost.getPort()), credentials);
+      }
+      httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxyHost);
     }
+
+    GoogleAuthenticator authenticator = new GoogleAuthenticator(cmdLine.getUsername(), cmdLine.getPassword(), httpClient);
+    GoogleTrendsClient client = new GoogleTrendsClient(authenticator, httpClient);
+    MultipleFileWriter writer = new MultipleFileWriter(cmdLine.getOutputDir());
+    HierarchicalDownloader csvDownloader = new HierarchicalDownloader(client, writer);
+    if (cmdLine.getSleep() >= 0) {
+      csvDownloader.setSleep(cmdLine.getSleep());
+    }
+    csvDownloader.setQueryOpts(cmdLine.getQueryOptions());
+    csvDownloader.start(cmdLine.getQuery(), cmdLine.getmaxRequests());
+  }
 
 }

@@ -19,7 +19,6 @@
 package org.freaknet.gtrends.client;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -52,7 +51,7 @@ public class HierarchicalDownloader {
     private GoogleTrendsClient client;
     private int topMax = 10;
     private DataWriter writer;
-    private int sleep = 0;
+    private int sleep = 10000;
     private String section = null;
     private List<NameValuePair> queryParams = null;
     

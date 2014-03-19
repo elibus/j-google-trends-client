@@ -50,8 +50,8 @@ public class CmdLineParser {
     private static final String USER_PASS_SEP = ":";
     public static final char DOMAIN_SEP = '/';
 
-    private Options options;
-    private CommandLineParser parser;
+    private final Options options;
+    private final CommandLineParser parser;
     private CommandLine cmd;
     private static final String HELP_HEADER = "This is a client for Google Trends. It allows to:\n"
             + "- Download the entire CSV file (the same file that can be downloaded through the browser)\n"
@@ -85,7 +85,7 @@ public class CmdLineParser {
 
         Option sleepOpt = OptionBuilder.withArgName("sleep")
                 .hasArg()
-                .withDescription("Sleep in ms between two different requests (might help in case the QoS threshold is exceeded - default: 0)")
+                .withDescription("Sleep in ms between two different requests (might help in case the QoS threshold is exceeded - default: 10000 (10 secs))")
                 .withLongOpt("sleep")
                 .withType(Number.class)
                 .create("S");
@@ -203,7 +203,7 @@ public class CmdLineParser {
         try {
             return Integer.valueOf(cmd.getOptionValue("S"));
         } catch (java.lang.NumberFormatException e) {
-            return 0;
+            return -1;
         }
     }
 
