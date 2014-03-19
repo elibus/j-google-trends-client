@@ -48,8 +48,8 @@ Jar files with "with-dependencies" suffix can be used straightaway as standalone
 By default the client will issue just one request for the query specified with the `-q` parameter. Setting the `-maxRequests` parameter to a integer greater than 1 will instead run the client in hierarchical mode, this means the clien will run at most `-maxRequests` starting from the specified word and moving on with those words found in the "Related searches" table. 
 
 #### Example
-Running the client as follows:
-    java -jar j-google-trends-client-1.1.1.jar -u myUser -p myPass -q "jobs -'steve jobs'" -m 100
+Run the client as follows:
+    `java -jar j-google-trends-client-1.1.1.jar -u myUser -p myPass -q "jobs -'steve jobs'" -m 100`
 
 and the client will:
   1. Download the data for the `"jobs -'steve jobs'"` search
