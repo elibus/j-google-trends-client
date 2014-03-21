@@ -34,11 +34,13 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.message.BasicNameValuePair;
+import org.freaknet.gtrends.api.GoogleConfigurator;
 
 /**
  *
@@ -127,7 +129,13 @@ public class CmdLineParser {
             .withDescription("Query options.")
             .withLongOpt("queryOptions")
             .create("o");
-
+    
+    Option logLevelOpt = OptionBuilder.withArgName("-l")
+            .hasArg()
+            .withDescription("Log level <INFO|WARNING|SEVERE> (default WARNING)")
+            .withLongOpt("-logLevel")
+            .create("l");
+    
     options.addOption(queryOpt);
     options.addOption(usernameOpt);
     options.addOption(passwordOpt);
@@ -138,6 +146,7 @@ public class CmdLineParser {
     options.addOption(maxRequestsOpt);
     options.addOption(sectionOpt);
     options.addOption(queryOptionsOpt);
+    options.addOption(logLevelOpt);
   }
 
   /**
@@ -158,7 +167,7 @@ public class CmdLineParser {
     try {
       cmd = parser.parse(options, args);
     } catch (ParseException ex) {
-      Logger.getLogger(CmdLineParser.class.getName()).log(Level.SEVERE, ex.getLocalizedMessage());
+      Logger.getLogger(GoogleConfigurator.getLoggerPrefix()).log(Level.SEVERE, ex.getLocalizedMessage());
       showHelp();
     }
     return this;
@@ -231,7 +240,8 @@ public class CmdLineParser {
       try {
         credentials = new NTCredentials(getProxyUsername(), getProxyPassword(), InetAddress.getLocalHost().getHostName(), getProxyUserDomain());
       } catch (UnknownHostException ex) {
-        Logger.getLogger(CmdLineParser.class.getName()).log(Level.WARNING, "Could not retrieve workstation name. Trying authentication without it.", ex);
+        
+        Logger.getLogger(GoogleConfigurator.getLoggerPrefix()).log(Level.WARNING, "Could not retrieve workstation name. Trying authentication without it.", ex);
         credentials = new NTCredentials(getProxyUsername(), getProxyPassword(), "", getProxyUserDomain());
       }
     } else {
@@ -259,6 +269,14 @@ public class CmdLineParser {
     return cmd.getOptionValue("s");
   }
 
+  /**
+   * Gets the log Level.
+   *
+   * @return
+   */
+  public String getLogLevel() {
+    return cmd.getOptionValue("l");
+  }
   /**
    * Gets proxy Host name
    *

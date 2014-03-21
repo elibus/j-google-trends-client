@@ -20,14 +20,21 @@ package org.freaknet.gtrends.client;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Filter;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.freaknet.gtrends.api.GoogleAuthenticator;
+import org.freaknet.gtrends.api.GoogleConfigurator;
 import org.freaknet.gtrends.api.GoogleTrendsClient;
 import org.freaknet.gtrends.api.exceptions.GoogleTrendsClientException;
 import org.freaknet.gtrends.api.exceptions.GoogleTrendsRequestException;
@@ -41,8 +48,11 @@ import org.freaknet.gtrends.client.writers.exceptions.DataWriterException;
  */
 public class App {
 
-  public static void main(String[] args) throws GoogleTrendsClientException, IOException, InterruptedException, GoogleTrendsRequestException, URISyntaxException, ParseException, ConfigurationException, DataWriterException, HierarchicalDownloaderException {
+  private static final String DEFAULT_LOGGING_LEVEL = "WARNING";
+
+  public static void main(String[] args) throws GoogleTrendsClientException, IOException, InterruptedException, GoogleTrendsRequestException, URISyntaxException, ParseException, DataWriterException, HierarchicalDownloaderException {
     CmdLineParser cmdLine = new CmdLineParser().parse(args);
+    setLogLevel(cmdLine);
 
     DefaultHttpClient httpClient = new DefaultHttpClient();
 
@@ -63,8 +73,43 @@ public class App {
     if (cmdLine.getSleep() >= 0) {
       csvDownloader.setSleep(cmdLine.getSleep());
     }
+    if (cmdLine.getSection() != null) {
+      csvDownloader.setSection(cmdLine.getSection());
+    }
+
     csvDownloader.setQueryOpts(cmdLine.getQueryOptions());
     csvDownloader.start(cmdLine.getQuery(), cmdLine.getmaxRequests());
+  }
+
+  private static void setLogLevel(CmdLineParser cmdLine) throws SecurityException, IllegalArgumentException {
+    final Level level;
+    if (cmdLine.getLogLevel() != null) {
+      level = Level.parse(cmdLine.getLogLevel());
+    } else {
+      level = Level.parse(DEFAULT_LOGGING_LEVEL);
+    }
+    Logger log = LogManager.getLogManager().getLogger("");
+
+    for (Handler h : log.getHandlers()) {
+      log.removeHandler(h);
+    }
+    Handler handler = new ConsoleHandler();
+    handler.setFormatter(new LogFormatter());
+    handler.setLevel(level);
+    log.setUseParentHandlers(false);
+    
+    Logger defaultLog = Logger.getLogger(GoogleConfigurator.getLoggerPrefix());
+    defaultLog.addHandler(handler);
+    defaultLog.setLevel(level);
+    defaultLog.setFilter(new Filter() {
+      @Override
+      public boolean isLoggable(LogRecord record) {
+        if ( record.getSourceClassName().startsWith(GoogleConfigurator.getLoggerPrefix())) {
+          return (record.getLevel().intValue() >= level.intValue());
+        }
+        return false;
+      }
+    });
   }
 
 }
