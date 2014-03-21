@@ -58,4 +58,11 @@
                 <goal>deploy</goal>
             </goals>
         </action>
+        <action>
+            <actionName>CUSTOM-build</actionName>
+            <displayName>build</displayName>
+            <goals>
+                <goal>build</goal>
+            </goals>
+        </action>
     </actions>

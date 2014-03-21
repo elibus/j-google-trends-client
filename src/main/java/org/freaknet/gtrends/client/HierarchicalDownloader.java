@@ -46,175 +46,175 @@ import org.freaknet.gtrends.client.writers.exceptions.DataWriterException;
  * @author Marco Tizzoni <marco.tizzoni@gmail.com>
  */
 public class HierarchicalDownloader {
-    
-    private static final String SECTION_TOP_SEARCHES_FOR = "Top searches for";
-    private GoogleTrendsClient client;
-    private int topMax = 10;
-    private DataWriter writer;
-    private int sleep = 10000;
-    private String section = null;
-    private List<NameValuePair> queryParams = null;
-    
-    public HierarchicalDownloader(GoogleTrendsClient client, DataWriter writer) {
-        this.client = client;
-        this.writer = writer;
-    }
 
-    /**
-     * @return the sleep
-     */
-    public int getSleep() {
-        return this.sleep;
-    }
+  private static final String SECTION_TOP_SEARCHES_FOR = "Top searches for";
+  private GoogleTrendsClient client;
+  private int topMax = 10;
+  private DataWriter writer;
+  private int sleep = 10000;
+  private String section = null;
+  private List<NameValuePair> queryParams = null;
 
-    /**
-     * @param sleep the sleep to set
-     */
-    public void setSleep(int sleep) {
-        this.sleep = sleep;
-    }
+  public HierarchicalDownloader(GoogleTrendsClient client, DataWriter writer) {
+    this.client = client;
+    this.writer = writer;
+  }
 
-    /**
-     * Starts the download.
-     *
-     * @param firstQuery First query to issue.
-     * @param requestsLimit Maximum number of request to issue.
-     * @throws HierarchicalDownloaderException
-     */
-    void start(String firstQuery, int requestsLimit) throws HierarchicalDownloaderException {
-        String csvContent;
-        int requestCount = 0;
-        Map<String, Integer> queries = new HashMap();
-        Queue<String> queue = new LinkedList<String>();
-        queue.add(firstQuery);
-        
-        try {
-            while ((!queue.isEmpty()) && (requestCount < requestsLimit)) {
-                String query = queue.remove();
-                if (!queries.containsKey(query)) {
-                    
-                    GoogleTrendsRequest request = new GoogleTrendsRequest(query);
-                    request.setQueryParams(queryParams);
-                    
-                    csvContent = getClient().execute(request);
-                    requestCount++;
-                    if (getSleep() != 0) {
-                        Thread.sleep(this.getSleep());
-                    }
-                    
-                    if (csvContent == null) {
-                        throw new HierarchicalDownloaderException("CSV is empty. It looks like something went wrong! :/");
-                    } else {
-                        Logger.getLogger(HierarchicalDownloader.class.getName()).log(Level.INFO, "#{0}, {1}", new Object[]{requestCount, query});
-                    }
-                    
-                    GoogleTrendsCsvParser csvParser = new GoogleTrendsCsvParser(csvContent);
-                    if (getSection() != null) {
-                        csvContent = csvParser.getSectionAsString(getSection(), false);
-                        if (csvContent == null) {
-                            throw new HierarchicalDownloaderException("Cannot find the requested section \"" + getSection() + "\".");
-                        }
-                    }
-                    
-                    queries.put(query, 0);
-                    writer.write(query, csvContent);
-                    enqueueTopSearches(csvParser, queries, queue);
-                }
+  /**
+   * @return the sleep
+   */
+  public int getSleep() {
+    return this.sleep;
+  }
+
+  /**
+   * @param sleep the sleep to set
+   */
+  public void setSleep(int sleep) {
+    this.sleep = sleep;
+  }
+
+  /**
+   * Starts the download.
+   *
+   * @param firstQuery First query to issue.
+   * @param requestsLimit Maximum number of request to issue.
+   * @throws HierarchicalDownloaderException
+   */
+  void start(String firstQuery, int requestsLimit) throws HierarchicalDownloaderException {
+    String csvContent;
+    int requestCount = 0;
+    Map<String, Integer> queries = new HashMap();
+    Queue<String> queue = new LinkedList<String>();
+    queue.add(firstQuery);
+
+    try {
+      while ((!queue.isEmpty()) && (requestCount < requestsLimit)) {
+        String query = queue.remove();
+        if (!queries.containsKey(query)) {
+
+          GoogleTrendsRequest request = new GoogleTrendsRequest(query);
+          request.setQueryParams(queryParams);
+
+          csvContent = getClient().execute(request);
+          requestCount++;
+          if (getSleep() != 0) {
+            Thread.sleep(this.getSleep());
+          }
+
+          if (csvContent == null) {
+            throw new HierarchicalDownloaderException("CSV is empty. It looks like something went wrong! :/");
+          } else {
+            Logger.getLogger(HierarchicalDownloader.class.getName()).log(Level.INFO, "#{0}, {1}", new Object[]{requestCount, query});
+          }
+
+          GoogleTrendsCsvParser csvParser = new GoogleTrendsCsvParser(csvContent);
+          if (getSection() != null) {
+            csvContent = csvParser.getSectionAsString(getSection(), false);
+            if (csvContent == null) {
+              throw new HierarchicalDownloaderException("Cannot find the requested section \"" + getSection() + "\".");
             }
-        } catch (ConfigurationException ex) {
-            throw new HierarchicalDownloaderException(ex);
-        } catch (GoogleTrendsClientException ex) {
-            throw new HierarchicalDownloaderException(ex);
-        } catch (IOException ex) {
-            throw new HierarchicalDownloaderException(ex);
-        } catch (DataWriterException ex) {
-            throw new HierarchicalDownloaderException(ex);
-        } catch (GoogleTrendsRequestException ex) {
-            throw new HierarchicalDownloaderException(ex);
-        } catch (InterruptedException ex) {
-            throw new HierarchicalDownloaderException(ex);
+          }
+
+          queries.put(query, 0);
+          writer.write(query, csvContent);
+          enqueueTopSearches(csvParser, queries, queue);
         }
+      }
+    } catch (ConfigurationException ex) {
+      throw new HierarchicalDownloaderException(ex);
+    } catch (GoogleTrendsClientException ex) {
+      throw new HierarchicalDownloaderException(ex);
+    } catch (IOException ex) {
+      throw new HierarchicalDownloaderException(ex);
+    } catch (DataWriterException ex) {
+      throw new HierarchicalDownloaderException(ex);
+    } catch (GoogleTrendsRequestException ex) {
+      throw new HierarchicalDownloaderException(ex);
+    } catch (InterruptedException ex) {
+      throw new HierarchicalDownloaderException(ex);
     }
+  }
 
-    /**
-     * @return the topMax
-     */
-    public int getTopMax() {
-        return topMax;
-    }
+  /**
+   * @return the topMax
+   */
+  public int getTopMax() {
+    return topMax;
+  }
 
-    /**
-     * @param topFirst
-     */
-    public void setTopMax(int topFirst) {
-        this.topMax = topFirst;
-    }
+  /**
+   * @param topFirst
+   */
+  public void setTopMax(int topFirst) {
+    this.topMax = topFirst;
+  }
 
-    /**
-     * @return the writer
-     */
-    public DataWriter getWriter() {
-        return writer;
-    }
+  /**
+   * @return the writer
+   */
+  public DataWriter getWriter() {
+    return writer;
+  }
 
-    /**
-     * @param writer the writer to set
-     */
-    public void setWriter(DataWriter writer) {
-        this.writer = writer;
-    }
-    
-    private void enqueueTopSearches(GoogleTrendsCsvParser csvParser, Map<String, Integer> queries, Queue<String> queue) throws IOException {
-        // Add next queries
-        List<String> topSearches = csvParser.getSectionAsStringList(SECTION_TOP_SEARCHES_FOR, false, csvParser.getSeparator());
-        for (int i = 0; (i < getTopMax()) && (i < topSearches.size()); i++) {
-            String col = topSearches.get(i);
-            String q = col.split(csvParser.getSeparator())[0];
-            if (!queries.containsKey(q)) {
-                queue.add(q);
-            }
-        }
-    }
+  /**
+   * @param writer the writer to set
+   */
+  public void setWriter(DataWriter writer) {
+    this.writer = writer;
+  }
 
-    /**
-     * @return the client
-     */
-    public GoogleTrendsClient getClient() {
-        return client;
+  private void enqueueTopSearches(GoogleTrendsCsvParser csvParser, Map<String, Integer> queries, Queue<String> queue) throws IOException {
+    // Add next queries
+    List<String> topSearches = csvParser.getSectionAsStringList(SECTION_TOP_SEARCHES_FOR, false, csvParser.getSeparator());
+    for (int i = 0; (i < getTopMax()) && (i < topSearches.size()); i++) {
+      String col = topSearches.get(i);
+      String q = col.split(csvParser.getSeparator())[0];
+      if (!queries.containsKey(q)) {
+        queue.add(q);
+      }
     }
+  }
 
-    /**
-     * @param client the client to set
-     */
-    public void setClient(GoogleTrendsClient client) {
-        this.client = client;
-    }
+  /**
+   * @return the client
+   */
+  public GoogleTrendsClient getClient() {
+    return client;
+  }
 
-    /**
-     * @return the section
-     */
-    public String getSection() {
-        return section;
-    }
+  /**
+   * @param client the client to set
+   */
+  public void setClient(GoogleTrendsClient client) {
+    this.client = client;
+  }
 
-    /**
-     * @param section the section to set
-     */
-    public void setSection(String section) {
-        this.section = section;
-    }
+  /**
+   * @return the section
+   */
+  public String getSection() {
+    return section;
+  }
 
-    /**
-     * @return the queryParams
-     */
-    public List<NameValuePair> getQueryOpts() {
-        return queryParams;
-    }
+  /**
+   * @param section the section to set
+   */
+  public void setSection(String section) {
+    this.section = section;
+  }
 
-    /**
-     * @param queryOpts
-     */
-    public void setQueryOpts(List<NameValuePair> queryOpts) {
-        this.queryParams = queryOpts;
-    }
+  /**
+   * @return the queryParams
+   */
+  public List<NameValuePair> getQueryOpts() {
+    return queryParams;
+  }
+
+  /**
+   * @param queryOpts
+   */
+  public void setQueryOpts(List<NameValuePair> queryOpts) {
+    this.queryParams = queryOpts;
+  }
 }

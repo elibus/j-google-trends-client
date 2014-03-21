@@ -29,33 +29,33 @@ import org.freaknet.gtrends.client.writers.exceptions.DataWriterException;
  */
 public class MultipleFileWriter implements DataWriter {
 
-    private File outputDir;
-    private String ext = "csv";
+  private File outputDir;
+  private String ext = "csv";
 
-    public MultipleFileWriter(String outputDir) throws IOException {
-        this.outputDir = new File(outputDir);
-        if (!this.outputDir.canWrite()) {
-            throw new IOException("Directory: \"" + outputDir + "\" is not writable!");
-        }
+  public MultipleFileWriter(String outputDir) throws IOException {
+    this.outputDir = new File(outputDir);
+    if (!this.outputDir.canWrite()) {
+      throw new IOException("Directory: \"" + outputDir + "\" is not writable!");
     }
+  }
 
-    public MultipleFileWriter(String outputDir, String ext) throws IOException {
-        this.ext = ext;
-        this.outputDir = new File(outputDir);
-        if (!this.outputDir.canWrite()) {
-            throw new IOException("Directory: \"" + outputDir + "\" is not writable!");
-        }
+  public MultipleFileWriter(String outputDir, String ext) throws IOException {
+    this.ext = ext;
+    this.outputDir = new File(outputDir);
+    if (!this.outputDir.canWrite()) {
+      throw new IOException("Directory: \"" + outputDir + "\" is not writable!");
     }
+  }
 
-    @Override
-    public void write(String name, String text) throws DataWriterException {
-        try {
-            byte[] toWrite = text.getBytes();
-            FileOutputStream out = new FileOutputStream(outputDir + File.separator + name + "." + ext);
-            out.write(toWrite);
-            out.close();
-        } catch (IOException ex) {
-            throw new DataWriterException(ex);
-        }
+  @Override
+  public void write(String name, String text) throws DataWriterException {
+    try {
+      byte[] toWrite = text.getBytes();
+      FileOutputStream out = new FileOutputStream(outputDir + File.separator + name + "." + ext);
+      out.write(toWrite);
+      out.close();
+    } catch (IOException ex) {
+      throw new DataWriterException(ex);
     }
+  }
 }

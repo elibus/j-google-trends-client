@@ -24,31 +24,30 @@ package org.freaknet.gtrends.client.exceptions;
  */
 public class HierarchicalDownloaderException extends Exception {
 
-    /**
-     * Creates a new instance of
-     * <code>HierarchicalDownloaderException</code> without detail message.
-     */
-    public HierarchicalDownloaderException() {
-    }
+  /**
+   * Creates a new instance of <code>HierarchicalDownloaderException</code>
+   * without detail message.
+   */
+  public HierarchicalDownloaderException() {
+  }
 
-    /**
-     * Constructs an instance of
-     * <code>HierarchicalDownloaderException</code> with the specified detail
-     * message.
-     *
-     * @param msg the detail message.
-     */
-    public HierarchicalDownloaderException(String msg) {
-        super(msg);
-    }
-    
-    /**
-     * Constructs an instance of
-     * <code>DataWriterException</code> with the specified exception.
-     *
-     * @param e the exception.
-     */
-    public HierarchicalDownloaderException(Exception e) {
-        super(e);
-    }
+  /**
+   * Constructs an instance of <code>HierarchicalDownloaderException</code> with
+   * the specified detail message.
+   *
+   * @param msg the detail message.
+   */
+  public HierarchicalDownloaderException(String msg) {
+    super(msg);
+  }
+
+  /**
+   * Constructs an instance of <code>DataWriterException</code> with the
+   * specified exception.
+   *
+   * @param e the exception.
+   */
+  public HierarchicalDownloaderException(Exception e) {
+    super(e);
+  }
 }

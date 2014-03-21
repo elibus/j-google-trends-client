@@ -25,5 +25,6 @@ import org.freaknet.gtrends.client.writers.exceptions.DataWriterException;
  * @author Marco Tizzoni <marco.tizzoni@gmail.com>
  */
 public interface DataWriter {
-    public void write (String name, String data) throws DataWriterException;
+
+  public void write(String name, String data) throws DataWriterException;
 }
