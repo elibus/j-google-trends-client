@@ -24,30 +24,30 @@ package org.freaknet.gtrends.client.writers.exceptions;
  */
 public class DataWriterException extends Exception {
 
-    /**
-     * Creates a new instance of
-     * <code>DataWriterException</code> without detail message.
-     */
-    public DataWriterException() {
-    }
+  /**
+   * Creates a new instance of <code>DataWriterException</code> without detail
+   * message.
+   */
+  public DataWriterException() {
+  }
 
-    /**
-     * Constructs an instance of
-     * <code>DataWriterException</code> with the specified detail message.
-     *
-     * @param msg the detail message.
-     */
-    public DataWriterException(String msg) {
-        super(msg);
-    }
-    
-    /**
-     * Constructs an instance of
-     * <code>DataWriterException</code> with the specified exception.
-     *
-     * @param e the exception.
-     */
-    public DataWriterException(Exception e) {
-        super(e);
-    }
+  /**
+   * Constructs an instance of <code>DataWriterException</code> with the
+   * specified detail message.
+   *
+   * @param msg the detail message.
+   */
+  public DataWriterException(String msg) {
+    super(msg);
+  }
+
+  /**
+   * Constructs an instance of <code>DataWriterException</code> with the
+   * specified exception.
+   *
+   * @param e the exception.
+   */
+  public DataWriterException(Exception e) {
+    super(e);
+  }
 }
