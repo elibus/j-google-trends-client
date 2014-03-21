@@ -11,9 +11,9 @@ Jar files with "with-dependencies" suffix can be used straightaway as standalone
     [ elibus@teresa ~ ] java -jar j-google-trends-client-1.1.1-jar-with-dependencies.jar
     Sep 24, 2013 10:25:34 PM org.freaknet.gtrends.client.CmdLineParser parse
     SEVERE: Missing required options: q, u, p
-    usage: gtclient.sh [-C <proxy>] [-d <dir>] [-m <maxRequests>] [-o
-           <queryOptions>] [-P <proxy>] -p <password> -q <query> [-s
-           <section>] [-S <sleep>] -u <username>
+    usage: gtclient.sh [-C <proxy>] [-d <dir>] [-l <-l>] [-m <maxRequests>]
+       [-o <queryOptions>] -p <password> [-P <proxy>] -q <query> [-S
+       <sleep>] [-s <section>] -u <username>
     This is a client for Google Trends. It allows to:
     - Download the entire CSV file (the same file that can be downloaded
     through the browser)
@@ -25,6 +25,8 @@ Jar files with "with-dependencies" suffix can be used straightaway as standalone
                                         is required only for NTLM
                                         authentication
      -d,--dir <dir>                     Output directory (default: "./out")
+     -l,---logLevel <-l>                Log level <INFO|WARNING|SEVERE>
+                                        (default WARNING)
      -m,--maxRequests <maxRequests>     Maximum number of requests to perform.
      -o,--queryOptions <queryOptions>   Query options.
      -P,--proxy <proxy>                 Proxy host in the form
