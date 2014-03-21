@@ -29,7 +29,7 @@ import org.freaknet.gtrends.client.writers.exceptions.DataWriterException;
  */
 public class MultipleFileWriter implements DataWriter {
 
-  private File outputDir;
+  private final File outputDir;
   private String ext = "csv";
 
   public MultipleFileWriter(String outputDir) throws IOException {

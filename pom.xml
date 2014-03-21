@@ -4,7 +4,7 @@
 
   <groupId>org.freaknet.gtrends.client</groupId>
   <artifactId>j-google-trends-client</artifactId>
-  <version>1.2.7</version>
+  <version>1.2.8</version>
   <packaging>jar</packaging>
 
   <name>j-google-trends-client</name>
@@ -167,7 +167,7 @@
     <dependency>
       <groupId>org.freaknet.gtrends</groupId>
       <artifactId>j-google-trends-api</artifactId>
-      <version>1.5.5</version>
+      <version>1.5.6</version>
     </dependency>
   </dependencies>
 

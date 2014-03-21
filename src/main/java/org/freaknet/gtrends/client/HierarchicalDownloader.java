@@ -28,6 +28,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.http.NameValuePair;
+import org.freaknet.gtrends.api.GoogleConfigurator;
 import org.freaknet.gtrends.api.GoogleTrendsClient;
 import org.freaknet.gtrends.api.GoogleTrendsCsvParser;
 import org.freaknet.gtrends.api.GoogleTrendsRequest;
@@ -95,17 +96,18 @@ public class HierarchicalDownloader {
 
           GoogleTrendsRequest request = new GoogleTrendsRequest(query);
           request.setQueryParams(queryParams);
-
+          
           csvContent = getClient().execute(request);
           requestCount++;
           if (getSleep() != 0) {
+            Logger.getLogger(GoogleConfigurator.getLoggerPrefix()).log(Level.FINE, "Sleeping for {0} seconds", this.getSleep()/1000);
             Thread.sleep(this.getSleep());
           }
 
           if (csvContent == null) {
             throw new HierarchicalDownloaderException("CSV is empty. It looks like something went wrong! :/");
           } else {
-            Logger.getLogger(HierarchicalDownloader.class.getName()).log(Level.INFO, "#{0}, {1}", new Object[]{requestCount, query});
+            Logger.getLogger(GoogleConfigurator.getLoggerPrefix()).log(Level.INFO, "#{0}, {1}", new Object[]{requestCount, query});
           }
 
           GoogleTrendsCsvParser csvParser = new GoogleTrendsCsvParser(csvContent);
@@ -164,13 +166,14 @@ public class HierarchicalDownloader {
     this.writer = writer;
   }
 
-  private void enqueueTopSearches(GoogleTrendsCsvParser csvParser, Map<String, Integer> queries, Queue<String> queue) throws IOException {
+  private void enqueueTopSearches(GoogleTrendsCsvParser csvParser, Map<String, Integer> queries, Queue<String> queue) throws IOException, ConfigurationException {
     // Add next queries
     List<String> topSearches = csvParser.getSectionAsStringList(SECTION_TOP_SEARCHES_FOR, false, csvParser.getSeparator());
     for (int i = 0; (i < getTopMax()) && (i < topSearches.size()); i++) {
       String col = topSearches.get(i);
       String q = col.split(csvParser.getSeparator())[0];
       if (!queries.containsKey(q)) {
+        Logger.getLogger((String) GoogleConfigurator.getConfiguration().getProperty("defaultLoggerPrefix")).log(Level.FINE, "Adding query for: {0}", q);
         queue.add(q);
       }
     }
