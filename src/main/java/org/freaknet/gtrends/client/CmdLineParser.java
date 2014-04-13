@@ -18,6 +18,7 @@
  */
 package org.freaknet.gtrends.client;
 
+import com.sun.org.apache.xerces.internal.impl.xs.identity.Selector;
 import org.freaknet.gtrends.client.json.RegionsParser;
 import org.freaknet.gtrends.client.exceptions.CmdLineParserException;
 import java.io.FileNotFoundException;
@@ -130,7 +131,7 @@ public class CmdLineParser {
             .withDescription("Query options.")
             .withLongOpt("queryOptions")
             .create("o");
-    
+
     Option logLevelOpt = OptionBuilder.withArgName("-l")
             .hasArg()
             .withDescription("Log level <INFO|WARNING|SEVERE> (default WARNING)")
@@ -142,24 +143,26 @@ public class CmdLineParser {
             .withDescription("Region to download (default World Wide)")
             .withLongOpt("-region")
             .create("r");
-    
+
     Option printRegionsOpt = OptionBuilder.withArgName("-R")
             .withDescription("Print all available regions")
             .withLongOpt("-printRegions")
             .create("R");
-    
+
     Option dateSinceOpt = OptionBuilder.withArgName("-D")
+            .hasArg()
             .withDescription("Time frame in the format MM/YYYY:N "
                     + "Meaning: Since MM/YYYY with a time window of N months")
             .withLongOpt("-dateSince")
             .create("D");
-    
+
     Option dateWindowOpt = OptionBuilder.withArgName("-w")
+            .hasArg()
             .withDescription("Set a time window. Works in conjuction with '-D'."
                     + "Example: '-D 02/2014:4 -w 1' downloads the monthly statistics from February up to May")
             .withLongOpt("-window")
             .create("w");
-    
+
     options.addOption(queryOpt);
     options.addOption(usernameOpt);
     options.addOption(passwordOpt);
@@ -268,7 +271,7 @@ public class CmdLineParser {
       try {
         credentials = new NTCredentials(getProxyUsername(), getProxyPassword(), InetAddress.getLocalHost().getHostName(), getProxyUserDomain());
       } catch (UnknownHostException ex) {
-        
+
         Logger.getLogger(GoogleConfigurator.getLoggerPrefix()).log(Level.WARNING, "Could not retrieve workstation name. Trying authentication without it.", ex);
         credentials = new NTCredentials(getProxyUsername(), getProxyPassword(), "", getProxyUserDomain());
       }
@@ -305,6 +308,7 @@ public class CmdLineParser {
   public String getLogLevel() {
     return cmd.getOptionValue("l");
   }
+
   /**
    * Gets proxy Host name
    *
@@ -418,27 +422,55 @@ public class CmdLineParser {
 
     return ret;
   }
-  
-  public Boolean getPrintRegionsOpt(){
+
+  public Boolean getPrintRegionsOpt() {
     return cmd.hasOption('R');
   }
-  
-  public List<Region> getRegions() throws FileNotFoundException, CmdLineParserException{
-    if (!cmd.hasOption('r'))
+
+  public List<Region> getRegions() throws FileNotFoundException, CmdLineParserException {
+    if (!cmd.hasOption('r')) {
       return null;
-    
+    }
+
     LinkedList<Region> list = new LinkedList<Region>();
     RegionsParser p = RegionsParser.getInstance();
     StringTokenizer st = new StringTokenizer(cmd.getOptionValue('r'), ",");
-    while (st.hasMoreTokens()){
+    while (st.hasMoreTokens()) {
       String id = st.nextToken();
       Region r = p.find(id);
-      if (r != null){
+      if (r != null) {
         list.add(r);
       } else {
         throw new CmdLineParserException("Region with id " + id + " is not available!");
       }
     }
     return list;
+  }
+
+  public String getDateSince() throws CmdLineParserException {
+    if (!cmd.hasOption('D')) {
+      return null;
+    }
+
+    String v = cmd.getOptionValue('D');
+    Pattern p = Pattern.compile("\\d{1,2}/\\d{4}:\\d+");
+    Matcher m = p.matcher(v);
+    
+    if (m.matches()) {
+      return v;
+    }
+
+    throw new CmdLineParserException("Date '" + v + "' has an invalid format!");
+  }
+
+  public Integer getDateWindow() throws CmdLineParserException {
+    if (!cmd.hasOption('D')) {
+      return 0;
+    }
+    try {
+      return Integer.valueOf(cmd.getOptionValue("w"));
+    } catch (java.lang.NumberFormatException e) {
+      throw new CmdLineParserException("Window '" + cmd.getOptionValue("w") + "' has an invalid format!");
+    }
   }
 }
