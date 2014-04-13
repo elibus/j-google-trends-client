@@ -54,7 +54,7 @@ public class HierarchicalDownloader {
   private DataWriter writer;
   private int sleep = 10000;
   private String section = null;
-  private List<NameValuePair> queryParams = null;
+  private List<NameValuePair> queryOpts = null;
 
   public HierarchicalDownloader(GoogleTrendsClient client, DataWriter writer) {
     this.client = client;
@@ -95,7 +95,7 @@ public class HierarchicalDownloader {
         if (!queries.containsKey(query)) {
 
           GoogleTrendsRequest request = new GoogleTrendsRequest(query);
-          request.setQueryParams(queryParams);
+          request.setQueryParams(queryOpts);
           
           csvContent = getClient().execute(request);
           requestCount++;
@@ -211,13 +211,13 @@ public class HierarchicalDownloader {
    * @return the queryParams
    */
   public List<NameValuePair> getQueryOpts() {
-    return queryParams;
+    return queryOpts;
   }
 
   /**
    * @param queryOpts
    */
   public void setQueryOpts(List<NameValuePair> queryOpts) {
-    this.queryParams = queryOpts;
+    this.queryOpts = queryOpts;
   }
 }

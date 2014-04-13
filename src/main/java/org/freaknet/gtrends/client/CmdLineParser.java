@@ -18,10 +18,14 @@
  */
 package org.freaknet.gtrends.client;
 
+import org.freaknet.gtrends.client.json.RegionsParser;
+import org.freaknet.gtrends.client.exceptions.CmdLineParserException;
+import java.io.FileNotFoundException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -34,13 +38,13 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.message.BasicNameValuePair;
 import org.freaknet.gtrends.api.GoogleConfigurator;
+import org.freaknet.gtrends.client.json.Region;
 
 /**
  *
@@ -68,14 +72,12 @@ public class CmdLineParser {
     this.options = new Options();
     Option usernameOpt = OptionBuilder.withArgName("username")
             .hasArg()
-            .isRequired()
             .withDescription("Username (example: user@google.com)")
             .withLongOpt("username")
             .create("u");
 
     Option passwordOpt = OptionBuilder.withArgName("password")
             .hasArg()
-            .isRequired()
             .withDescription("Password")
             .withLongOpt("password")
             .create("p");
@@ -107,7 +109,6 @@ public class CmdLineParser {
 
     Option queryOpt = OptionBuilder.withArgName("query")
             .hasArg()
-            .isRequired()
             .withDescription("Google query string")
             .withLongOpt("query")
             .create("q");
@@ -135,6 +136,29 @@ public class CmdLineParser {
             .withDescription("Log level <INFO|WARNING|SEVERE> (default WARNING)")
             .withLongOpt("-logLevel")
             .create("l");
+
+    Option regionOpt = OptionBuilder.withArgName("-r")
+            .hasArg()
+            .withDescription("Region to download (default World Wide)")
+            .withLongOpt("-region")
+            .create("r");
+    
+    Option printRegionsOpt = OptionBuilder.withArgName("-R")
+            .withDescription("Print all available regions")
+            .withLongOpt("-printRegions")
+            .create("R");
+    
+    Option dateSinceOpt = OptionBuilder.withArgName("-D")
+            .withDescription("Time frame in the format MM/YYYY:N "
+                    + "Meaning: Since MM/YYYY with a time window of N months")
+            .withLongOpt("-dateSince")
+            .create("D");
+    
+    Option dateWindowOpt = OptionBuilder.withArgName("-w")
+            .withDescription("Set a time window. Works in conjuction with '-D'."
+                    + "Example: '-D 02/2014:4 -w 1' downloads the monthly statistics from February up to May")
+            .withLongOpt("-window")
+            .create("w");
     
     options.addOption(queryOpt);
     options.addOption(usernameOpt);
@@ -147,6 +171,10 @@ public class CmdLineParser {
     options.addOption(sectionOpt);
     options.addOption(queryOptionsOpt);
     options.addOption(logLevelOpt);
+    options.addOption(regionOpt);
+    options.addOption(printRegionsOpt);
+    options.addOption(dateSinceOpt);
+    options.addOption(dateWindowOpt);
   }
 
   /**
@@ -375,7 +403,7 @@ public class CmdLineParser {
     }
   }
 
-  public List<NameValuePair> getQueryOptions() {
+  public List<NameValuePair> getQueryOpts() {
     List<NameValuePair> ret = new LinkedList<NameValuePair>();
     String opts = cmd.getOptionValue("o");
     String[] optsArray;
@@ -389,5 +417,28 @@ public class CmdLineParser {
     }
 
     return ret;
+  }
+  
+  public Boolean getPrintRegionsOpt(){
+    return cmd.hasOption('R');
+  }
+  
+  public List<Region> getRegions() throws FileNotFoundException, CmdLineParserException{
+    if (!cmd.hasOption('r'))
+      return null;
+    
+    LinkedList<Region> list = new LinkedList<Region>();
+    RegionsParser p = RegionsParser.getInstance();
+    StringTokenizer st = new StringTokenizer(cmd.getOptionValue('r'), ",");
+    while (st.hasMoreTokens()){
+      String id = st.nextToken();
+      Region r = p.find(id);
+      if (r != null){
+        list.add(r);
+      } else {
+        throw new CmdLineParserException("Region with id " + id + " is not available!");
+      }
+    }
+    return list;
   }
 }
