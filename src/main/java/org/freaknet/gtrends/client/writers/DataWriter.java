@@ -18,6 +18,7 @@
  */
 package org.freaknet.gtrends.client.writers;
 
+import org.freaknet.gtrends.api.GoogleTrendsRequest;
 import org.freaknet.gtrends.client.writers.exceptions.DataWriterException;
 
 /**
@@ -26,5 +27,5 @@ import org.freaknet.gtrends.client.writers.exceptions.DataWriterException;
  */
 public interface DataWriter {
 
-  public void write(String name, String data) throws DataWriterException;
+  public void write(GoogleTrendsRequest r, String data) throws DataWriterException;
 }

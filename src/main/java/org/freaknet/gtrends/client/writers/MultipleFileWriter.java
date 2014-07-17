@@ -21,6 +21,7 @@ package org.freaknet.gtrends.client.writers;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import org.freaknet.gtrends.api.GoogleTrendsRequest;
 import org.freaknet.gtrends.client.writers.exceptions.DataWriterException;
 
 /**
@@ -30,29 +31,21 @@ import org.freaknet.gtrends.client.writers.exceptions.DataWriterException;
 public class MultipleFileWriter implements DataWriter {
 
   private final File outputDir;
-  private String ext = "csv";
 
+  // TODO - comments
   public MultipleFileWriter(String outputDir) throws IOException {
     this.outputDir = new File(outputDir);
-    if (!this.outputDir.canWrite()) {
-      throw new IOException("Directory: \"" + outputDir + "\" is not writable!");
-    }
   }
 
-  public MultipleFileWriter(String outputDir, String ext) throws IOException {
-    this.ext = ext;
-    this.outputDir = new File(outputDir);
-    if (!this.outputDir.canWrite()) {
-      throw new IOException("Directory: \"" + outputDir + "\" is not writable!");
-    }
-  }
-
+  // TODO - comments
   @Override
-  public void write(String name, String text) throws DataWriterException {
+  public void write(GoogleTrendsRequest r, String content) throws DataWriterException {
     try {
-      byte[] toWrite = text.getBytes();
-      FileOutputStream out = new FileOutputStream(outputDir + File.separator + name + "." + ext);
-      out.write(toWrite);
+      String fullPath = FullPathBuilder.build(outputDir, r);
+      File f = new File(fullPath);
+      f.mkdirs();
+      FileOutputStream out = new FileOutputStream(f);
+      out.write(content.getBytes());
       out.close();
     } catch (IOException ex) {
       throw new DataWriterException(ex);

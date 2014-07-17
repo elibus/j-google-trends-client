@@ -35,12 +35,13 @@ import org.freaknet.gtrends.api.GoogleTrendsRequest;
 import org.freaknet.gtrends.api.exceptions.GoogleTrendsClientException;
 import org.freaknet.gtrends.api.exceptions.GoogleTrendsRequestException;
 import org.freaknet.gtrends.client.exceptions.HierarchicalDownloaderException;
+import org.freaknet.gtrends.client.json.Region;
 import org.freaknet.gtrends.client.writers.DataWriter;
 import org.freaknet.gtrends.client.writers.exceptions.DataWriterException;
 
 /**
  * Recursively downloads CSV files from Google Trends. It starts from firstQuery
- * downloading the relative CSV file or section. Then Look for the first
+ * downloading the relative CSV file or _section. Then Look for the first
  * TopFirst of "Top searches" and download them all until requestsLimit is
  * reached.
  *
@@ -49,30 +50,42 @@ import org.freaknet.gtrends.client.writers.exceptions.DataWriterException;
 public class HierarchicalDownloader {
 
   private static final String SECTION_TOP_SEARCHES_FOR = "Top searches for";
-  private GoogleTrendsClient client;
+  private GoogleTrendsClient _client;
   private int topMax = 10;
-  private DataWriter writer;
-  private int sleep = 10000;
-  private String section = null;
-  private List<NameValuePair> queryOpts = null;
+  private DataWriter _writer;
+  private int _sleep;
+  private String _section;
+  private List<NameValuePair> _queryOpts;
+  private List<Region> _regions;
 
   public HierarchicalDownloader(GoogleTrendsClient client, DataWriter writer) {
-    this.client = client;
-    this.writer = writer;
+    _queryOpts = null;
+    _section = null;
+    _regions = null;
+    _sleep = 0;
+    _client = client;
+    _writer = writer;
   }
 
   /**
-   * @return the sleep
+   * @return the _sleep
    */
   public int getSleep() {
-    return this.sleep;
+    return this._sleep;
   }
 
   /**
-   * @param sleep the sleep to set
+   * @param sleep the _sleep to set
    */
   public void setSleep(int sleep) {
-    this.sleep = sleep;
+    this._sleep = sleep;
+  }
+
+  public void start(String firstQuery, int requestsLimit) throws HierarchicalDownloaderException {
+    for (Region r : _regions) {
+      _start(firstQuery, requestsLimit, r.getId(), _section);
+    }
+
   }
 
   /**
@@ -82,7 +95,7 @@ public class HierarchicalDownloader {
    * @param requestsLimit Maximum number of request to issue.
    * @throws HierarchicalDownloaderException
    */
-  void start(String firstQuery, int requestsLimit) throws HierarchicalDownloaderException {
+  private void _start(String firstQuery, int requestsLimit, String regionId, String date) throws HierarchicalDownloaderException {
     String csvContent;
     int requestCount = 0;
     Map<String, Integer> queries = new HashMap();
@@ -95,12 +108,13 @@ public class HierarchicalDownloader {
         if (!queries.containsKey(query)) {
 
           GoogleTrendsRequest request = new GoogleTrendsRequest(query);
-          request.setQueryParams(queryOpts);
-          
+          request.setGeo(regionId);
+          request.setDate(date);
+
           csvContent = getClient().execute(request);
           requestCount++;
           if (getSleep() != 0) {
-            Logger.getLogger(GoogleConfigurator.getLoggerPrefix()).log(Level.FINE, "Sleeping for {0} seconds", this.getSleep()/1000);
+            Logger.getLogger(GoogleConfigurator.getLoggerPrefix()).log(Level.FINE, "Sleeping for {0} seconds", this.getSleep() / 1000);
             Thread.sleep(this.getSleep());
           }
 
@@ -119,7 +133,7 @@ public class HierarchicalDownloader {
           }
 
           queries.put(query, 0);
-          writer.write(query, csvContent);
+          _writer.write(request, csvContent);
           enqueueTopSearches(csvParser, queries, queue);
         }
       }
@@ -153,17 +167,17 @@ public class HierarchicalDownloader {
   }
 
   /**
-   * @return the writer
+   * @return the _writer
    */
   public DataWriter getWriter() {
-    return writer;
+    return _writer;
   }
 
   /**
-   * @param writer the writer to set
+   * @param writer the _writer to set
    */
   public void setWriter(DataWriter writer) {
-    this.writer = writer;
+    this._writer = writer;
   }
 
   private void enqueueTopSearches(GoogleTrendsCsvParser csvParser, Map<String, Integer> queries, Queue<String> queue) throws IOException, ConfigurationException {
@@ -180,44 +194,64 @@ public class HierarchicalDownloader {
   }
 
   /**
-   * @return the client
+   * @return the _client
    */
   public GoogleTrendsClient getClient() {
-    return client;
+    return _client;
   }
 
   /**
-   * @param client the client to set
+   * @param client the _client to set
    */
   public void setClient(GoogleTrendsClient client) {
-    this.client = client;
+    this._client = client;
   }
 
   /**
-   * @return the section
+   * @return the _section
    */
   public String getSection() {
-    return section;
+    return _section;
   }
 
   /**
-   * @param section the section to set
+   * @param section the _section to set
    */
   public void setSection(String section) {
-    this.section = section;
+    this._section = section;
   }
 
   /**
    * @return the queryParams
    */
   public List<NameValuePair> getQueryOpts() {
-    return queryOpts;
+    return _queryOpts;
   }
 
   /**
    * @param queryOpts
    */
   public void setQueryOpts(List<NameValuePair> queryOpts) {
-    this.queryOpts = queryOpts;
+    this._queryOpts = queryOpts;
+  }
+
+  /**
+   *
+   * @param regions
+   */
+  void setRegions(List<Region> regions) {
+    _regions = regions;
+  }
+
+  private String getNextRegion() {
+    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+  }
+
+  void setDate(String dateSince) {
+    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+  }
+
+  void setDateWindow(Integer dateWindow) {
+    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
   }
 }

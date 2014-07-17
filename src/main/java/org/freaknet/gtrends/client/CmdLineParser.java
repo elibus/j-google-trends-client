@@ -18,7 +18,6 @@
  */
 package org.freaknet.gtrends.client;
 
-import com.sun.org.apache.xerces.internal.impl.xs.identity.Selector;
 import org.freaknet.gtrends.client.json.RegionsParser;
 import org.freaknet.gtrends.client.exceptions.CmdLineParserException;
 import java.io.FileNotFoundException;
@@ -56,6 +55,7 @@ public class CmdLineParser {
   private static final String PARAMS_SEP = "&";
   private static final String PARAMS_NAME_VALUE_SEP = "=";
   private static final String USER_PASS_SEP = ":";
+  private static final int DEFAULT_SLEEP_MS = 10000;
   public static final char DOMAIN_SEP = '/';
 
   private final Options options;
@@ -244,7 +244,7 @@ public class CmdLineParser {
     try {
       return Integer.valueOf(cmd.getOptionValue("S"));
     } catch (java.lang.NumberFormatException e) {
-      return -1;
+      return DEFAULT_SLEEP_MS;
     }
   }
 

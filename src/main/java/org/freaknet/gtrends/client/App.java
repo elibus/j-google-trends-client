@@ -18,20 +18,14 @@
  */
 package org.freaknet.gtrends.client;
 
-import org.freaknet.gtrends.client.exceptions.CmdLineParserException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.List;
-import org.apache.commons.cli.ParseException;
 import org.freaknet.gtrends.api.GoogleTrendsClient;
-import org.freaknet.gtrends.api.exceptions.GoogleTrendsClientException;
-import org.freaknet.gtrends.api.exceptions.GoogleTrendsRequestException;
+import org.freaknet.gtrends.client.exceptions.CmdLineParserException;
 import org.freaknet.gtrends.client.exceptions.GoogleTrendsClientRunException;
 import org.freaknet.gtrends.client.exceptions.HierarchicalDownloaderException;
-import org.freaknet.gtrends.client.json.Region;
 import org.freaknet.gtrends.client.writers.MultipleFileWriter;
-import org.freaknet.gtrends.client.writers.exceptions.DataWriterException;
+
 
 /**
  *
@@ -39,24 +33,18 @@ import org.freaknet.gtrends.client.writers.exceptions.DataWriterException;
  */
 public class App {
 
-    public static void main(String[] args) throws GoogleTrendsClientRunException, HierarchicalDownloaderException {
+    public static void main(String[] args) throws GoogleTrendsClientRunException, HierarchicalDownloaderException, IOException, FileNotFoundException, CmdLineParserException {
+    CmdLineParser cmdLine = new CmdLineParser().parse(args);
     
-    GoogleTrendsClient client = GoogleTrendsClientRun.initialize(args);
-    
-    HierarchicalDownloader csvDownloader = new HierarchicalDownloader(client, GoogleTrendsClientRun.getWriter());
-    csvDownloader.setSleep(GoogleTrendsClientRun.getSleepTime());
-    if (GoogleTrendsClientRun.getSection() != null) {
-      csvDownloader.setSection(GoogleTrendsClientRun.getSection());
-    }
+    GoogleTrendsClient client = GoogleTrendsClientFactory.buildClient(cmdLine);
+    MultipleFileWriter writer = new MultipleFileWriter(cmdLine.getOutputDir());
 
-    QueryOptionsBuilder gbuilder = new QueryOptionsBuilder(GoogleTrendsClientRun.getQueryOpts());
- 
-    List<Region> regions = GoogleTrendsClientRun.getRegions();
-    for (Region region : regions) {
-      gbuilder.setRegion(region.getId());
-      csvDownloader.setQueryOpts(gbuilder.build()); 
-      csvDownloader.start(GoogleTrendsClientRun.getQuery(), GoogleTrendsClientRun.getMaxRequests());
-    }
+    HierarchicalDownloader csvDownloader = new HierarchicalDownloader(client, writer);
+    csvDownloader.setSleep(cmdLine.getSleep());
+    csvDownloader.setSection(cmdLine.getSection());
+    csvDownloader.setRegions(cmdLine.getRegions());
+    csvDownloader.setDate(cmdLine.getDateSince());
+    csvDownloader.setDateWindow(cmdLine.getDateWindow());
     
   }
 }
