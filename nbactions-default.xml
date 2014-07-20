@@ -10,8 +10,9 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-classpath %classpath ${packageClassName}</exec.args>
+                <exec.args>-classpath %classpath org.freaknet.gtrends.client.App -u dueesseerreelle@gmail.com -p du33ss33rr33ll3 -q "steve jobs" -l INFO -m 1 -r IT</exec.args>
                 <exec.executable>java</exec.executable>
+                <exec.workingdir>/Users/elibus/dev/test</exec.workingdir>
             </properties>
         </action>
         <action>
@@ -24,9 +25,10 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath ${packageClassName}</exec.args>
+                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath org.freaknet.gtrends.client.App -u dueesseerreelle@gmail.com -p du33ss33rr33ll3 -q "steve jobs" -l INFO -m 1 -r IT</exec.args>
                 <exec.executable>java</exec.executable>
                 <jpda.listen>true</jpda.listen>
+                <exec.workingdir>/Users/elibus/dev/test</exec.workingdir>
             </properties>
         </action>
         <action>
@@ -39,8 +41,9 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-classpath %classpath ${packageClassName}</exec.args>
+                <exec.args>-classpath %classpath org.freaknet.gtrends.client.App -u dueesseerreelle@gmail.com -p du33ss33rr33ll3 -q "steve jobs" -l INFO -m 1 -r IT</exec.args>
                 <exec.executable>java</exec.executable>
+                <exec.workingdir>/Users/elibus/dev/test</exec.workingdir>
             </properties>
         </action>
     </actions>

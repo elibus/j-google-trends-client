@@ -16,30 +16,28 @@
  *     You should have received a copy of the GNU General Public License
  *     along with j-google-trends-client.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.freaknet.gtrends.client.writers;
-
-import java.io.File;
-import org.freaknet.gtrends.api.GoogleTrendsRequest;
+package org.freaknet.gtrends.client.exceptions;
 
 /**
- * Build the full path to the file.
  *
- * @author Marco Tizzoni <marco.tizzoni@gmail.com>
+ * @author elibus
  */
-public class FullPathBuilder {
+public class RegionFinderException extends Exception {
 
- /**
-  * @param baseDir Where to start writing
-  * @param r Google Trend request
-  */
-  static String build(File baseDir, GoogleTrendsRequest r) {
-    String q = r.getParam("q");
-    String geo = r.getParam("geo");
-    if (geo == null){
-      geo = "";
-    }
-    
-    return baseDir + File.separator + geo + File.separator + q + ".csv";
+  /**
+   * Creates a new instance of <code>RegionFinderException</code> without detail
+   * message.
+   */
+  public RegionFinderException() {
   }
-  
+
+  /**
+   * Constructs an instance of <code>RegionFinderException</code> with the
+   * specified detail message.
+   *
+   * @param msg the detail message.
+   */
+  public RegionFinderException(String msg) {
+    super(msg);
+  }
 }

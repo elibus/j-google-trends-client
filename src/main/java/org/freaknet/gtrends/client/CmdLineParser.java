@@ -18,14 +18,11 @@
  */
 package org.freaknet.gtrends.client;
 
-import org.freaknet.gtrends.client.json.RegionsParser;
 import org.freaknet.gtrends.client.exceptions.CmdLineParserException;
-import java.io.FileNotFoundException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -44,7 +41,6 @@ import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.message.BasicNameValuePair;
 import org.freaknet.gtrends.api.GoogleConfigurator;
-import org.freaknet.gtrends.client.json.Region;
 
 /**
  *
@@ -55,7 +51,7 @@ public class CmdLineParser {
   private static final String PARAMS_SEP = "&";
   private static final String PARAMS_NAME_VALUE_SEP = "=";
   private static final String USER_PASS_SEP = ":";
-  private static final int DEFAULT_SLEEP_MS = 10000;
+  private static final int DEFAULT_SLEEP_MS = 5000;
   public static final char DOMAIN_SEP = '/';
 
   private final Options options;
@@ -242,7 +238,7 @@ public class CmdLineParser {
    */
   public int getSleep() {
     try {
-      return Integer.valueOf(cmd.getOptionValue("S"));
+      return Integer.valueOf(cmd.getOptionValue("S")) * 1000;
     } catch (java.lang.NumberFormatException e) {
       return DEFAULT_SLEEP_MS;
     }
@@ -427,24 +423,8 @@ public class CmdLineParser {
     return cmd.hasOption('R');
   }
 
-  public List<Region> getRegions() throws FileNotFoundException, CmdLineParserException {
-    if (!cmd.hasOption('r')) {
-      return null;
-    }
-
-    LinkedList<Region> list = new LinkedList<Region>();
-    RegionsParser p = RegionsParser.getInstance();
-    StringTokenizer st = new StringTokenizer(cmd.getOptionValue('r'), ",");
-    while (st.hasMoreTokens()) {
-      String id = st.nextToken();
-      Region r = p.find(id);
-      if (r != null) {
-        list.add(r);
-      } else {
-        throw new CmdLineParserException("Region with id " + id + " is not available!");
-      }
-    }
-    return list;
+  public String getRegions() {
+    return cmd.getOptionValue('r');
   }
 
   public String getDateSince() throws CmdLineParserException {
@@ -455,7 +435,7 @@ public class CmdLineParser {
     String v = cmd.getOptionValue('D');
     Pattern p = Pattern.compile("\\d{1,2}/\\d{4}:\\d+");
     Matcher m = p.matcher(v);
-    
+
     if (m.matches()) {
       return v;
     }

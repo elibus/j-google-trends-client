@@ -24,27 +24,30 @@ import org.freaknet.gtrends.api.GoogleTrendsClient;
 import org.freaknet.gtrends.client.exceptions.CmdLineParserException;
 import org.freaknet.gtrends.client.exceptions.GoogleTrendsClientRunException;
 import org.freaknet.gtrends.client.exceptions.HierarchicalDownloaderException;
+import org.freaknet.gtrends.client.exceptions.RegionFinderException;
+import org.freaknet.gtrends.client.json.RegionParser;
 import org.freaknet.gtrends.client.writers.MultipleFileWriter;
-
 
 /**
  *
  * @author Marco Tizzoni <marco.tizzoni@gmail.com>
  */
 public class App {
-
-    public static void main(String[] args) throws GoogleTrendsClientRunException, HierarchicalDownloaderException, IOException, FileNotFoundException, CmdLineParserException {
+    public static void main(String[] args) throws GoogleTrendsClientRunException, HierarchicalDownloaderException, IOException, FileNotFoundException, CmdLineParserException, RegionFinderException {
     CmdLineParser cmdLine = new CmdLineParser().parse(args);
     
     GoogleTrendsClient client = GoogleTrendsClientFactory.buildClient(cmdLine);
     MultipleFileWriter writer = new MultipleFileWriter(cmdLine.getOutputDir());
-
-    HierarchicalDownloader csvDownloader = new HierarchicalDownloader(client, writer);
-    csvDownloader.setSleep(cmdLine.getSleep());
-    csvDownloader.setSection(cmdLine.getSection());
-    csvDownloader.setRegions(cmdLine.getRegions());
-    csvDownloader.setDate(cmdLine.getDateSince());
-    csvDownloader.setDateWindow(cmdLine.getDateWindow());
+    //writer.setSectionFilter(cmdLine.getSection());
     
+    GoogleTrendsRequestBuilder b = new GoogleTrendsRequestBuilder(cmdLine.getQuery(), cmdLine.getRegions(), cmdLine.getmaxRequests());
+
+    HierarchicalDownloader csvDownloader = new HierarchicalDownloader(client, b, writer);
+    csvDownloader.start(1000);
+    
+    //csvDownloader.setSection(cmdLine.getSection());
+    //csvDownloader.setRegions(cmdLine.getRegions());
+    //csvDownloader.setDate(cmdLine.getDateSince());
+    //csvDownloader.setDateWindow(cmdLine.getDateWindow());
   }
 }

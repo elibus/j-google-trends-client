@@ -43,7 +43,7 @@ public class MultipleFileWriter implements DataWriter {
     try {
       String fullPath = FullPathBuilder.build(outputDir, r);
       File f = new File(fullPath);
-      f.mkdirs();
+      (new File(f.getParent())).mkdirs();
       FileOutputStream out = new FileOutputStream(f);
       out.write(content.getBytes());
       out.close();

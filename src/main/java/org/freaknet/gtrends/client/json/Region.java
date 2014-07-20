@@ -16,11 +16,6 @@
  *     You should have received a copy of the GNU General Public License
  *     along with j-google-trends-client.  If not, see <http://www.gnu.org/licenses/>.
  */
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package org.freaknet.gtrends.client.json;
 
@@ -36,6 +31,12 @@ public class Region {
   private String name;
   private LinkedList<Region> children;
   private boolean favorite;
+
+  public Region(String id, String name, boolean prime) {
+    this.id = id;
+    this.name = name;
+    this.prime = prime;
+  }
 
   /**
    * @return the prime

@@ -3,18 +3,18 @@
  *
  * This file is part of j-google-trends-client
  *
- *     j-google-trends-client is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ * j-google-trends-client is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
- *     j-google-trends-client is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
+ * j-google-trends-client is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  *
- *     You should have received a copy of the GNU General Public License
- *     along with j-google-trends-client.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with
+ * j-google-trends-client. If not, see <http://www.gnu.org/licenses/>.
  */
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -23,9 +23,7 @@
  */
 package org.freaknet.gtrends.client;
 
-import org.freaknet.gtrends.client.json.RegionsParser;
 import java.io.FileNotFoundException;
-import java.util.List;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Filter;
 import java.util.logging.Handler;
@@ -33,17 +31,18 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import org.apache.http.HttpHost;
-import org.apache.http.NameValuePair;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
-import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.freaknet.gtrends.api.GoogleAuthenticator;
 import org.freaknet.gtrends.api.GoogleConfigurator;
 import org.freaknet.gtrends.api.GoogleTrendsClient;
 import org.freaknet.gtrends.client.exceptions.GoogleTrendsClientRunException;
-import org.freaknet.gtrends.client.json.Region;
+import org.freaknet.gtrends.client.json.RegionParser;
 
 /**
  *
@@ -51,28 +50,32 @@ import org.freaknet.gtrends.client.json.Region;
  */
 public class GoogleTrendsClientFactory {
 
-  private static GoogleTrendsClient client = null;
+  private static GoogleTrendsClient _client = null;
+  private static CookieStore _cookieStore;
 
   private static final String DEFAULT_LOGGING_LEVEL = "WARNING";
 
-  private static DefaultHttpClient _httpClient = null;
+  private static HttpClient _httpClient = null;
   private static GoogleAuthenticator _authenticator = null;
 
   private GoogleTrendsClientFactory() {
+    //_cookieStore = new BasicCookieStore();
   }
 
   /**
    *
    * @param cmdLine
    * @return
-   * @throws org.freaknet.gtrends.client.exceptions.GoogleTrendsClientRunException
+   * @throws
+   * org.freaknet.gtrends.client.exceptions.GoogleTrendsClientRunException
    */
   public static GoogleTrendsClient buildClient(CmdLineParser cmdLine) throws GoogleTrendsClientRunException {
-    if (client == null) {
-      client = _parse(cmdLine);
-      return client;
+    _cookieStore = new BasicCookieStore();
+    if (_client == null) {
+      _client = _parse(cmdLine);
+      return _client;
     }
-    return client;
+    return _client;
   }
 
   private static GoogleTrendsClient _parse(CmdLineParser cmdLine) throws GoogleTrendsClientRunException {
@@ -81,21 +84,46 @@ public class GoogleTrendsClientFactory {
       // TODO - Move outside
       // Prints all available regions and exists
       if (cmdLine.getPrintRegionsOpt()) {
-        RegionsParser.getInstance().printAll();
+        RegionParser.getInstance().printAll();
         System.exit(0);
       }
 
       // HTTP Client setup
-      _httpClient = new DefaultHttpClient();
-      if (cmdLine.getProxyHostname() != null) {
-        HttpHost proxyHost = new HttpHost(cmdLine.getProxyHostname(), cmdLine.getProxyPort(), cmdLine.getProxyProtocol());
-        Credentials credentials = cmdLine.getProxyCredentials();
-        if (credentials != null) {
-          _httpClient.getCredentialsProvider().setCredentials(new AuthScope(proxyHost.getHostName(), proxyHost.getPort()), credentials);
-        }
-        _httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxyHost);
-      }
+      int timeout = 5; // seconds
+      RequestConfig config = RequestConfig.custom()
+              .setConnectTimeout(timeout * 1000)
+              .setConnectionRequestTimeout(timeout * 1000)
+              .setSocketTimeout(timeout * 1000).build();
+      _httpClient = HttpClientBuilder.create()
+              .setDefaultCookieStore(_cookieStore)
+              .setDefaultRequestConfig(config)
+              //.setRedirectStrategy(new LaxRedirectStrategy())
+              .build();
 
+      BasicClientCookie cookie = new BasicClientCookie("I4SUserLocale", "it");
+      cookie.setVersion(0);
+      cookie.setDomain("www.google.com");
+      cookie.setPath("/trends");
+      cookie.setSecure(false);
+      _cookieStore.addCookie(cookie);
+
+      cookie = new BasicClientCookie("PREF", "");
+      cookie.setVersion(0);
+      cookie.setDomain("www.google.com");
+      cookie.setPath("/trends");
+      cookie.setSecure(false);
+      _cookieStore.addCookie(cookie);
+
+      // TODO - fix proxy
+//      if (cmdLine.getProxyHostname() != null) {
+//        HttpHost proxyHost = new HttpHost(cmdLine.getProxyHostname(), cmdLine.getProxyPort(), cmdLine.getProxyProtocol());
+//        Credentials credentials = cmdLine.getProxyCredentials();
+//        if (credentials != null) {
+//          _httpClient.get
+//          _httpClient.getCredentialsProvider().setCredentials(new AuthScope(proxyHost.getHostName(), proxyHost.getPort()), credentials);
+//        }
+//        _httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxyHost);
+//      }
       // Setup Google Authenticator
       _authenticator = new GoogleAuthenticator(cmdLine.getUsername(), cmdLine.getPassword(), _httpClient);
 

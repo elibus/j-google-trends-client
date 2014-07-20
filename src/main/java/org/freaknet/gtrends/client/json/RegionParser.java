@@ -34,46 +34,46 @@ import java.util.LinkedList;
  *
  * @author elibus
  */
-public class RegionsParser {
+public class RegionParser {
   
   private static final String SPACE_INDENT = "  ";
   private final static String JSON_FILE = "regions.json";
-  private static Region r;
-  private static RegionsParser instance = null;
+  private static Region _r;
+  private static RegionParser _instance = null;
 
-  private RegionsParser() {
+  private RegionParser() {
   }
 
-  public static RegionsParser getInstance() throws FileNotFoundException {
-    if (instance == null) {
-      instance = new RegionsParser();
-      InputStream in = instance.getClass().getClassLoader().getResourceAsStream(JSON_FILE);
-      r = new Gson().fromJson(new BufferedReader(new InputStreamReader(in)), Region.class);
+  public static RegionParser getInstance() throws FileNotFoundException {
+    if (_instance == null) {
+      _instance = new RegionParser();
+      InputStream in = _instance.getClass().getClassLoader().getResourceAsStream(JSON_FILE);
+      _r = new Gson().fromJson(new BufferedReader(new InputStreamReader(in)), Region.class);
     }
 
-    return instance;
+    return _instance;
   }
 
   ;
 
   /**
-   * @return the r
+   * @return the _r
    */
   public Region getR() {
-    return r;
+    return _r;
   }
 
   /**
-   * @param r the r to set
+   * @param r the _r to set
    */
   public void setR(Region r) {
-    RegionsParser.r = r;
+    _r = r;
   }
 
   public void printAll() {
-    if (r.isPrime()) {
-      LinkedList<Region> allRegions = r.getChildren();
-      System.out.println(r.getId() + ":" + r.getName());
+    if (_r.isPrime()) {
+      LinkedList<Region> allRegions = _r.getChildren();
+      System.out.println(_r.getId() + ":" + _r.getName());
       _printAll(allRegions, 1);
     }
   }
@@ -99,22 +99,22 @@ public class RegionsParser {
     _printAll(allRegions, l);
   }
 
-  public Region find(String id) {
-    if (r.isPrime()) {
-      LinkedList<Region> allRegions = r.getChildren();
-      return _exists(allRegions, id);
+  public Region childrenById(String id) {
+    if (_r.isPrime()) {
+      LinkedList<Region> allRegions = _r.getChildren();
+      return _childrenById(allRegions, id);
     }
     return null;
   }
 
-  private Region _exists(LinkedList<Region> allRegions, String id) {
-    Region e = allRegions.removeFirst();
-    if (id.equalsIgnoreCase(e.getId())) {
-      return e;
+  private Region _childrenById(LinkedList<Region> allRegions, String id) {
+    Region r = allRegions.removeFirst();
+    if (id.equalsIgnoreCase(r.getId())) {
+      return r;
     }
 
-    if (e.isPrime()) {
-      LinkedList<Region> children = e.getChildren();
+    if (r.isPrime()) {
+      LinkedList<Region> children = r.getChildren();
       if (children != null) {
         allRegions.addAll(children);
       }
@@ -123,7 +123,7 @@ public class RegionsParser {
     if (allRegions.isEmpty()) {
       return null;
     } else {
-      return _exists(allRegions, id);
+      return _childrenById(allRegions, id);
     }
   }
 }
